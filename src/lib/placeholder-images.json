@@ -1,0 +1,184 @@
+{
+  "PlaceHolderImages": [
+    {
+      "id": "hero-image",
+      "description": "A beautiful flute resting on a surface.",
+      "imageUrl": "https://i.postimg.cc/fb03g7XP/20240201-122151.jpg",
+      "imageHint": "bamboo flute"
+    },
+    {
+      "id": "flute-1",
+      "description": "A close up of a bamboo flute with intricate red ties.",
+      "imageUrl": "https://i.postimg.cc/d0T7SRrc/IMG-20231205-WA0031.jpg",
+      "imageHint": "bamboo flute"
+    },
+    {
+      "id": "flute-2",
+      "description": "A detailed shot of the holes on a classic bamboo bansuri.",
+      "imageUrl": "https://i.postimg.cc/cHyKqKBn/Screenshot-20250213-000438-Whats-App.jpg",
+      "imageHint": "bansuri flute"
+    },
+    {
+      "id": "flute-3",
+      "description": "A bamboo flute resting on a textured wooden surface.",
+      "imageUrl": "https://i.postimg.cc/VNbSH9nS/IMG-20240808-WA0030.jpg",
+      "imageHint": "bamboo flute"
+    },
+    {
+      "id": "flute-4",
+      "description": "A person holding a bamboo flute, ready to play.",
+      "imageUrl": "https://i.postimg.cc/SKzXtLCM/IMG-20240808-WA0020.jpg",
+      "imageHint": "flute player"
+    },
+    {
+      "id": "flute-5",
+      "description": "A collection of bamboo flutes of various sizes.",
+      "imageUrl": "https://i.postimg.cc/26Rqpq7b/IMG-20240729-WA0007.jpg",
+      "imageHint": "flute collection"
+    },
+    {
+      "id": "flute-6",
+      "description": "A bamboo flute with decorative wrappings, isolated on a white background.",
+      "imageUrl": "https://i.postimg.cc/zfRLPwK5/IMG-20240722-WA0015.jpg",
+      "imageHint": "bamboo flute"
+    },
+    {
+      "id": "flute-7",
+      "description": "A person playing a bamboo flute in a natural, outdoor setting.",
+      "imageUrl": "https://i.postimg.cc/Bv18w5H0/IMG-20231205-WA0020.jpg",
+      "imageHint": "flute player"
+    },
+    {
+      "id": "flute-8",
+      "description": "A craftsman working on finishing a bamboo flute.",
+      "imageUrl": "https://i.postimg.cc/fb03g7XP/20240201-122151.jpg",
+      "imageHint": "flute making"
+    },
+    {
+      "id": "flute-9",
+      "description": "A beautiful bamboo flute resting on a dark, elegant surface.",
+      "imageUrl": "https://i.postimg.cc/d0T7SRrc/IMG-20231205-WA0031.jpg",
+      "imageHint": "bamboo flute"
+    },
+    {
+      "id": "flute-10",
+      "description": "Artistic shot of a flute with dramatic lighting.",
+      "imageUrl": "https://i.postimg.cc/cHyKqKBn/Screenshot-20250213-000438-Whats-App.jpg",
+      "imageHint": "artistic flute"
+    },
+    {
+      "id": "flute-11",
+      "description": "A bamboo flute placed on ancient sheet music.",
+      "imageUrl": "https://i.postimg.cc/VNbSH9nS/IMG-20240808-WA0030.jpg",
+      "imageHint": "flute music"
+    },
+    {
+      "id": "flute-12",
+      "description": "Close-up of a flute's blowing hole (mukharandhra).",
+      "imageUrl": "https://i.postimg.cc/SKzXtLCM/IMG-20240808-WA0020.jpg",
+      "imageHint": "flute detail"
+    },
+    {
+      "id": "flute-13",
+      "description": "Professional bamboo flute with a polished finish.",
+      "imageUrl": "https://i.postimg.cc/26Rqpq7b/IMG-20240729-WA0007.jpg",
+      "imageHint": "professional flute"
+    },
+    {
+      "id": "flute-14",
+      "description": "A long, slender bamboo flute, perfect for classical music.",
+      "imageUrl": "https://i.postimg.cc/zfRLPwK5/IMG-20240722-WA0015.jpg",
+      "imageHint": "classical flute"
+    },
+    {
+      "id": "flute-15",
+      "description": "A set of different sized bamboo flutes arranged neatly.",
+      "imageUrl": "https://i.postimg.cc/Bv18w5H0/IMG-20231205-WA0020.jpg",
+      "imageHint": "flute set"
+    },
+    {
+      "id": "flute-16",
+      "description": "A musician's hands holding a bamboo flute.",
+      "imageUrl": "https://i.postimg.cc/fb03g7XP/20240201-122151.jpg",
+      "imageHint": "holding flute"
+    },
+    {
+      "id": "category-concert",
+      "description": "A musician playing a bansuri on stage at a concert.",
+      "imageUrl": "https://images.unsplash.com/photo-1581898492063-8f533b66f2dc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxpbmRpYW4lMjBjbGFzc2ljYWwlMjBtdXNpY3xlbnwwfHx8fDE3MjEwNjYzMDd8MA&ixlib=rb-4.0.3&q=80&w=1080",
+      "imageHint": "musician concert"
+    },
+    {
+      "id": "category-bass",
+      "description": "A collection of large bass bansuri flutes.",
+      "imageUrl": "https://i.postimg.cc/VNbSH9nS/IMG-20240808-WA0030.jpg",
+      "imageHint": "bass flutes"
+    },
+    {
+      "id": "category-piccolo",
+      "description": "A small, high-pitched bamboo flute.",
+      "imageUrl": "https://i.postimg.cc/SKzXtLCM/IMG-20240808-WA0020.jpg",
+      "imageHint": "small flute"
+    },
+    {
+      "id": "category-ethnic",
+      "description": "A collection of various world flutes made from different woods and bamboos.",
+      "imageUrl": "https://i.postimg.cc/26Rqpq7b/IMG-20240729-WA0007.jpg",
+      "imageHint": "world flutes"
+    },
+    {
+      "id": "user-1",
+      "description": "Portrait of a friendly looking Indian woman.",
+      "imageUrl": "https://images.unsplash.com/photo-1604537466549-0e8b15e25841?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxpbmRpYW4lMjB3b21hbnxlbnwwfHx8fDE3MjEwNjY1OTR8MA&ixlib=rb-4.0.3&q=80&w=1080",
+      "imageHint": "indian woman"
+    },
+    {
+      "id": "user-2",
+      "description": "Portrait of a smiling Indian man.",
+      "imageUrl": "https://images.unsplash.com/photo-1613233349141-516135676a20?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxpbmRpYW4lMjBtYW58ZW58MHx8fHwxNzIxMDY2NjE3fDA&ixlib=rb-4.0.3&q=80&w=1080",
+      "imageHint": "indian man"
+    },
+    {
+      "id": "user-3",
+      "description": "Portrait of a young Indian woman smiling.",
+      "imageUrl": "https://images.unsplash.com/photo-1600868297423-95241f8fe858?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxpbmRpYW4lMjB3b21hbnxlbnwwfHx8fDE3MjEwNjY1OTR8MA&ixlib=rb-4.0.3&q=80&w=1080",
+      "imageHint": "young woman"
+    },
+    {
+      "id": "user-4",
+      "description": "Portrait of an older, experienced Indian man with a beard.",
+      "imageUrl": "https://images.unsplash.com/photo-1594951932387-709b7d9a1a0e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxpbmRpYW4lMjBvbGQlMjBtYW58ZW58MHx8fHwxNzIxMDY2NjU3fDA&ixlib=rb-4.0.3&q=80&w=1080",
+      "imageHint": "older man"
+    },
+    {
+      "id": "flute-case-1",
+      "description": "A sturdy, elegant wooden case for a single flute.",
+      "imageUrl": "https://picsum.photos/seed/fc1/600/600",
+      "imageHint": "flute case"
+    },
+    {
+      "id": "flute-case-2",
+      "description": "The interior of a plush, velvet-lined flute case.",
+      "imageUrl": "https://picsum.photos/seed/fc2/600/600",
+      "imageHint": "case interior"
+    },
+    {
+      "id": "flute-bag-1",
+      "description": "A black canvas gig bag for carrying multiple flutes.",
+      "imageUrl": "https://picsum.photos/seed/fb1/600/600",
+      "imageHint": "flute bag"
+    },
+    {
+      "id": "flute-bag-2",
+      "description": "A musician carrying a flute bag over their shoulder.",
+      "imageUrl": "https://picsum.photos/seed/fb2/600/600",
+      "imageHint": "musician bag"
+    },
+    {
+      "id": "flute-cleaning-1",
+      "description": "A kit with a cloth, brush, and oil for cleaning a flute.",
+      "imageUrl": "https://picsum.photos/seed/fcl1/600/600",
+      "imageHint": "cleaning kit"
+    }
+  ]
+}

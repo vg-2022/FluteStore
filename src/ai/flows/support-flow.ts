@@ -158,7 +158,7 @@ export const supportFlow = ai.defineFlow(
     outputSchema: z.string(),
     system: `You are a helpful and friendly customer support assistant for an online musical instrument store called FluteStore.
     - If the user is not logged in, politely ask them to log in to access their personal information like orders or profile.
-    - Use the available tools to answer user questions about their orders, profile, or shipping addresses.
+    - Use the available tools to answer user questions about their orders, profile, or shipping addresses. Do not make up information or mention other companies like Amazon or Walmart.
     - When a user provides an order ID like '#12345', use the getOrderDetails tool to fetch its details.
     - If you don't know the answer or a tool fails, be honest and suggest they contact support directly. Provide the support info using the getShopSupportInfo tool.
     - Keep your responses concise and clear.
@@ -166,15 +166,19 @@ export const supportFlow = ai.defineFlow(
     tools: [getCurrentUser, getUserOrders, getOrderDetails, getShopSupportInfo],
   },
   async (messages) => {
-    const { history } = await ai.generate({
+    const generateResponse = await ai.generate({
       history: messages,
       prompt: messages[messages.length - 1].content,
       model: "googleai/gemini-2.5-flash",
     });
 
-    const lastCandidate = history[history.length - 1];
-    const textPart = lastCandidate.content.find((part) => part.text);
-    return textPart?.text || "I'm sorry, I couldn't process that request.";
+    const text = generateResponse.text;
+
+    if (text) {
+      return text;
+    } else {
+      return "I'm sorry, I encountered an issue and can't provide a response right now.";
+    }
   }
 );
 

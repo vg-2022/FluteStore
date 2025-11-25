@@ -1,459 +1,885 @@
 "use client";
-
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-  ReactNode,
-} from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import type { Product, ProductType } from "@/lib/types";
+import { Upload, X, Music } from "lucide-react";
+import React from "react";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { createClient } from "@/lib/supabase/client";
-import type {
-  AboutPageContent,
-  HomepageSection,
-  SocialLink,
-  Settings,
-  PDPSettings,
-  ProductType,
-  ShippingSettings,
-  FooterSettings,
-  FAQItem,
-  Promotion,
-} from "@/lib/types";
+import {
+  createProductAction,
+  updateProductAction,
+} from "@/app/actions/update-product";
+import { useSettings } from "../../settings/_components/settings-provider";
 
-const SETTINGS_KEY = "appSettings";
+const supabase = createClient();
 
-const initialStoreDetails = { name: "FluteStore", logo: null as string | null };
-const initialSocialLinks: SocialLink[] = [
-  { id: 1, platform: "facebook", href: "https://facebook.com" },
-  { id: 2, platform: "instagram", href: "https://instagram.com" },
-  { id: 3, platform: "twitter", href: "https://twitter.com" },
-];
-const initialHomepageSections: HomepageSection[] = [
-  {
-    id: "hero-default",
-    type: "hero",
-    title: "G Natural Base Bansuri",
-    visible: true,
-    data: {
-      productIds: ["flute-g-natural-base"],
-      promotions: [] as Promotion[],
-    },
-  },
-  {
-    id: "featured-default",
-    type: "featuredProducts",
-    title: "Featured Flutes",
-    visible: true,
-    data: {
-      productIds: [
-        "flute-c-natural-medium",
-        "flute-g-natural-base",
-        "flute-a-natural-base",
-        "flute-e-natural-base",
-      ],
-    },
-  },
-  {
-    id: "categories-default",
-    type: "categories",
-    title: "Shop by Category",
-    visible: true,
-    data: {
-      cards: [
-        {
-          id: "cat-card-1",
-          title: "Beginner",
-          href: "/products?type=Beginner",
-          imageId: "flute-5",
-        },
-        {
-          id: "cat-card-2",
-          title: "Intermediate",
-          href: "/products?type=Intermediate",
-          imageId: "flute-7",
-        },
-        {
-          id: "cat-card-3",
-          title: "Professional",
-          href: "/products?type=Professional",
-          imageId: "category-concert",
-        },
-        {
-          id: "cat-card-4",
-          title: "Bass Flutes",
-          href: "/products?scale=G",
-          imageId: "category-bass",
-        },
-      ],
-    },
-  },
-  {
-    id: "new-arrivals-default",
-    type: "newArrivals",
-    title: "New Arrivals",
-    visible: true,
-    data: {
-      productIds: [
-        "flute-d-natural-medium-new",
-        "flute-c-sharp-medium",
-        "flute-f-natural-medium",
-        "flute-a-natural-medium",
-      ],
-    },
-  },
-  {
-    id: "accessories-default",
-    type: "accessories",
-    title: "Accessories",
-    visible: true,
-    data: {
-      productIds: [
-        "accessory-case-1",
-        "accessory-bag-1",
-        "accessory-cleaning-1",
-      ],
-    },
-  },
-  {
-    id: "testimonials-1721067575306",
-    type: "testimonials",
-    title: "What Our Customers Say",
-    visible: true,
-    data: {
-      testimonials: [
-        {
-          id: 1,
-          name: "Priya S.",
-          location: "Mumbai, India",
-          comment:
-            "The C Natural Medium flute I bought is simply divine. The tone is rich and the craftsmanship is impeccable. It has become an extension of my musical soul.",
-          imageUrl:
-            "https://images.unsplash.com/photo-1604537466549-0e8b15e25841?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxpbmRpYW4lMjB3b21hbnxlbnwwfHx8fDE3MjEwNjY1OTR8MA&ixlib=rb-4.0.3&q=80&w=1080",
-          imageHint: "indian woman",
-        },
-        {
-          id: 2,
-          name: "Rohan J.",
-          location: "Bangalore, India",
-          comment:
-            "As a professional musician, I'm very particular about my instruments. The bass flute from FluteStore exceeded all my expectations. The resonance is deep and moving.",
-          imageUrl:
-            "https://images.unsplash.com/photo-1613233349141-516135676a20?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxpbmRpYW4lMjBtYW58ZW58MHx8fHwxNzIxMDY2NjE3fDA&ixlib=rb-4.0.3&q=80&w=1080",
-          imageHint: "indian man",
-        },
-      ],
-    },
-  },
-];
-const initialAboutContent: AboutPageContent = {
-  title: "About FluteStore",
-  aboutText:
-    "Welcome to our store! We are passionate about providing the highest quality instruments to musicians around the world. Our journey began in...",
-  aboutImageId: "flute-8",
-  teamMembers: [
-    {
-      id: 1,
-      name: "Shekhar Sharma",
-      role: "Founder & Master Artisan",
-      imageId: "user-2",
-      bio: "With over 40 years of experience, Shekhar is the heart and soul of our workshop.",
-    },
-    {
-      id: 2,
-      name: "Priya Mehta",
-      role: "Customer Relations",
-      imageId: "user-1",
-      bio: "Priya ensures every musician finds their perfect flute and receives the best possible service.",
-    },
-    {
-      id: 3,
-      name: "Rohan Joshi",
-      role: "Lead Craftsman",
-      imageId: "user-4",
-      bio: "Rohan combines traditional techniques with modern precision to craft our signature flutes.",
-    },
-  ],
-  contactInfo: [
-    {
-      id: 1,
-      type: "email",
-      title: "Email Support",
-      description: "For any inquiries",
-      value: "support@flutestore.com",
-      href: "mailto:support@flutestore.com",
-    },
-    {
-      id: 2,
-      type: "phone",
-      title: "Phone Support",
-      description: "Mon-Fri, 9am-5pm IST",
-      value: "+91 98765 43210",
-      href: "tel:+919876543210",
-    },
-    {
-      id: 3,
-      type: "address",
-      title: "Our Workshop",
-      description: "Visit us by appointment",
-      value: "123 Flute Lane, Music City, India",
-    },
-  ],
-};
-const initialFaq: FAQItem[] = [
-  {
-    id: 1,
-    question: "Which flute is best for beginners?",
-    answer:
-      "For beginners, we recommend a C Natural Medium flute. It's the standard size, easy to handle, and perfect for learning the basics of fingering and breath control.",
-  },
-  {
-    id: 2,
-    question: "What is the difference between a bass and medium flute?",
-    answer:
-      "A bass flute (Bansuri) is longer, has a deeper, more mellow tone, and requires more breath. A medium flute is smaller, has a higher pitch, and is generally easier for beginners to play.",
-  },
-  {
-    id: 3,
-    question: "How do I care for my bamboo flute?",
-    answer:
-      "Keep your flute away from extreme temperatures and direct sunlight. Oil it occasionally (once a month) with mustard oil to prevent cracks. Always wipe it clean after playing.",
-  },
-];
-const initialPDPSettings: PDPSettings = {
-  productTypes: [
-    { id: "flute", name: "Flute" },
-    { id: "accessory", name: "Accessory" },
-  ],
-  customizations: [
-    {
-      id: "string-colors",
-      label: "Manage String Colors",
-      type: "multiple-color-select",
-      count: 3,
-      colors: [
-        { id: "black", value: "black", label: "Black" },
-        { id: "maroon", value: "maroon", label: "Maroon" },
-        { id: "red_yellow", value: "red_yellow", label: "Red & Yellow" },
-      ],
-    },
-    {
-      id: "case",
-      label: "Get it with a case?",
-      type: "radio",
-      options: [
-        { value: "without-case", label: "Without Case" },
-        { value: "with-case", label: "With Hard Case", price_change: 500 },
-      ],
-      default_value: "without-case",
-      productTypes: ["flute"],
-    },
-    {
-      id: "style",
-      label: "Need a left handed flute? (South Indian Style)",
-      type: "checkbox",
-      default_value: false,
-      productTypes: ["flute"],
-    },
-    {
-      id: "engraving",
-      label: "Want your name engraved on the flute?",
-      type: "text",
-      default_value: "",
-      productTypes: ["flute"],
-    },
-    {
-      id: "note",
-      label: "Add a note for us",
-      type: "textarea",
-      default_value: "",
-      productTypes: ["flute", "accessory"],
-    },
-  ],
-};
-const initialShippingSettings: ShippingSettings = {
-  defaultRate: 150,
-  freeShippingThreshold: 2000,
-};
-const initialFooterSettings: FooterSettings = {
-  description:
-    "Crafting and curating the world's finest flutes since 1982. Join our community and find your perfect sound.",
-  columns: [
-    {
-      id: "shop",
-      title: "Shop",
-      links: [
-        { href: "/products", label: "All Flutes" },
-        { href: "/products?type=Beginner", label: "Beginner" },
-        { href: "/products?type=Intermediate", label: "Intermediate" },
-        { href: "/products?type=Professional", label: "Professional" },
-      ],
-    },
-    {
-      id: "support",
-      title: "Support",
-      links: [
-        { href: "/about#contact", label: "Contact Us" },
-        { href: "/faq", label: "FAQ" },
-        { href: "#", label: "Shipping & Returns" },
-        { href: "/account/orders", label: "Track Order" },
-      ],
-    },
-    {
-      id: "company",
-      title: "Company",
-      links: [
-        { href: "/about", label: "About Us" },
-        { href: "#", label: "Our Story" },
-        { href: "#", label: "Blog" },
-        { href: "#", label: "Careers" },
-      ],
-    },
-  ],
+type Specification = {
+  key: string;
+  value: string;
 };
 
-const initialSettings: Settings = {
-  storeDetails: initialStoreDetails,
-  socialLinks: initialSocialLinks,
-  homepageSections: initialHomepageSections,
-  aboutContent: initialAboutContent,
-  faq: initialFaq,
-  pdpSettings: initialPDPSettings,
-  shippingSettings: initialShippingSettings,
-  footerSettings: initialFooterSettings,
+type Attribute = {
+  id: string;
+  name: string;
 };
 
-interface SettingsContextType extends Settings {
-  saveSettings: (newSettings: Partial<Settings>) => Promise<void>;
-  isLoading: boolean;
-}
+// Real functions to interact with Supabase
+async function uploadAsset(file: File): Promise<string | null> {
+  if (!file) return null;
 
-const SettingsContext = createContext<SettingsContextType | undefined>(
-  undefined
-);
+  const fileExt = file.name.split(".").pop();
+  const fileName = `${Date.now()}-${Math.random()}.${fileExt}`;
+  const filePath = `${fileName}`;
 
-export function useSettings() {
-  const context = useContext(SettingsContext);
-  if (!context) {
-    throw new Error("useSettings must be used within a SettingsProvider");
-  }
-  return context;
-}
+  const { error: uploadError } = await supabase.storage
+    .from("product_media")
+    .upload(filePath, file);
 
-async function getSettings(supabase: any): Promise<Settings> {
-  const { data, error } = await supabase
-    .from("store_settings")
-    .select("value")
-    .eq("key", SETTINGS_KEY)
-    .single();
-
-  if (error && error.code !== "PGRST116") {
-    // PGRST116 means no rows found
-    console.error(`Error fetching settings:`, error);
-    return initialSettings; // Fallback
+  if (uploadError) {
+    console.error("Upload Error:", uploadError);
+    return null;
   }
 
-  if (!data || !data.value) {
-    // If no settings exist, create them with the initial settings
-    const { error: insertError } = await supabase
-      .from("store_settings")
-      .insert({ key: SETTINGS_KEY, value: initialSettings });
+  const { data } = supabase.storage
+    .from("product_media")
+    .getPublicUrl(filePath);
 
-    if (insertError) {
-      console.error("Failed to insert initial settings:", insertError);
-      return initialSettings;
+  return data.publicUrl;
+}
+
+async function getAttributes() {
+  const { data: categories, error: catError } = await supabase
+    .from("categories")
+    .select("category_id, category_name");
+  if (catError) console.error("Error fetching categories", catError);
+
+  const { data: tags, error: tagError } = await supabase
+    .from("tags")
+    .select("tag_id, tag_name");
+  if (tagError) console.error("Error fetching tags", tagError);
+
+  return {
+    categories:
+      categories?.map((c) => ({ id: c.category_id, name: c.category_name })) ||
+      [],
+    tags: tags?.map((t) => ({ id: t.tag_id, name: t.tag_name })) || [],
+  };
+}
+
+async function getProductAttributes(productId: string) {
+  const { data: categories, error: catError } = await supabase
+    .from("product_categories")
+    .select("category_id")
+    .eq("product_id", productId);
+
+  const { data: tags, error: tagError } = await supabase
+    .from("product_tags")
+    .select("tag_id")
+    .eq("product_id", productId);
+
+  return {
+    categoryIds: categories?.map((c) => c.category_id) || [],
+    tagIds: tags?.map((t) => t.tag_id) || [],
+  };
+}
+
+export function ProductForm({ product }: { product?: Product }) {
+  const router = useRouter();
+  const { toast } = useToast();
+  const { pdpSettings } = useSettings();
+
+  const [name, setName] = React.useState(product?.productName || "");
+  const [description, setDescription] = React.useState(
+    product?.description || ""
+  );
+  const [price, setPrice] = React.useState(product?.price || 0);
+  const [mrp, setMrp] = React.useState(product?.mrp);
+  const [productType, setProductType] = React.useState<Product["productType"]>(
+    product?.productType || pdpSettings.productTypes[0]?.id || ""
+  );
+  const [stockQuantity, setStockQuantity] = React.useState(
+    product?.stockQuantity || 0
+  );
+  const [stockStatus, setStockStatus] = React.useState<Product["stockStatus"]>(
+    product?.stockStatus || "in-stock"
+  );
+
+  const [specifications, setSpecifications] = React.useState<Specification[]>(
+    product?.specifications
+      ? Object.entries(product.specifications).map(([key, value]) => ({
+          key,
+          value: value as string,
+        }))
+      : [{ key: "", value: "" }]
+  );
+
+  const [allCategories, setAllCategories] = React.useState<Attribute[]>([]);
+  const [allTags, setAllTags] = React.useState<Attribute[]>([]);
+  const [selectedCategoryIds, setSelectedCategoryIds] = React.useState<
+    string[]
+  >([]);
+  const [selectedTagIds, setSelectedTagIds] = React.useState<string[]>([]);
+
+  const [imageFiles, setImageFiles] = React.useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = React.useState<string[]>(
+    product?.imageUrls || []
+  );
+  const [audioFile, setAudioFile] = React.useState<File | null>(null);
+  const [audioPreview, setAudioPreview] = React.useState<string | null>(
+    product?.audioUrl || null
+  );
+
+  const [isDragging, setIsDragging] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isUploadingImages, setIsUploadingImages] = React.useState(false);
+  const [isUploadingAudio, setIsUploadingAudio] = React.useState(false);
+
+  React.useEffect(() => {
+    const fetchAttributesAndProductData = async () => {
+      const { categories, tags } = await getAttributes();
+      setAllCategories(categories);
+      setAllTags(tags);
+
+      if (product) {
+        const { categoryIds, tagIds } = await getProductAttributes(
+          product.productId
+        );
+        setSelectedCategoryIds(categoryIds);
+        setSelectedTagIds(tagIds);
+      }
+    };
+    fetchAttributesAndProductData();
+  }, [product]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      const newFiles = files.filter(
+        (file) =>
+          !imageFiles.some((f) => f.name === file.name && f.size === file.size)
+      );
+      setImageFiles((prev) => [...prev, ...newFiles]);
+      const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+      setImagePreviews((prev) => [...prev, ...newPreviews]);
     }
-    return initialSettings;
-  }
-
-  // Merge fetched settings with initial settings to ensure all keys are present
-  const fetchedSettings = data.value;
-  const mergedSettings: Settings = {
-    storeDetails: {
-      ...initialSettings.storeDetails,
-      ...fetchedSettings.storeDetails,
-    },
-    socialLinks:
-      fetchedSettings.socialLinks && fetchedSettings.socialLinks.length > 0
-        ? fetchedSettings.socialLinks
-        : initialSettings.socialLinks,
-    homepageSections:
-      fetchedSettings.homepageSections &&
-      fetchedSettings.homepageSections.length > 0
-        ? fetchedSettings.homepageSections
-        : initialSettings.homepageSections,
-    aboutContent: {
-      ...initialSettings.aboutContent,
-      ...fetchedSettings.aboutContent,
-    },
-    faq:
-      fetchedSettings.faq && fetchedSettings.faq.length > 0
-        ? fetchedSettings.faq
-        : initialSettings.faq,
-    pdpSettings: {
-      ...initialSettings.pdpSettings,
-      ...fetchedSettings.pdpSettings,
-    },
-    shippingSettings: {
-      ...initialSettings.shippingSettings,
-      ...fetchedSettings.shippingSettings,
-    },
-    footerSettings: {
-      ...initialSettings.footerSettings,
-      ...fetchedSettings.footerSettings,
-    },
   };
 
-  return mergedSettings;
-}
+  const handleRemoveImage = (index: number, previewUrl: string) => {
+    const urlToRemove = imagePreviews[index];
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
 
-export function SettingsProvider({ children }: { children: ReactNode }) {
-  const supabase = createClient();
-  const [settings, setSettingsState] = useState<Settings>(initialSettings);
-  const [isLoading, setIsLoading] = useState(true);
+    if (urlToRemove.startsWith("blob:")) {
+      const fileIndexToRemove = imageFiles.findIndex(
+        (file) => URL.createObjectURL(file) === urlToRemove
+      );
+      if (fileIndexToRemove > -1) {
+        setImageFiles((prev) => prev.filter((_, i) => i !== fileIndexToRemove));
+      }
+      URL.revokeObjectURL(urlToRemove);
+    }
+  };
 
-  const fetchAllSettings = useCallback(async () => {
-    setIsLoading(true);
-    const settingsData = await getSettings(supabase);
-    setSettingsState(settingsData);
-    setIsLoading(false);
-  }, [supabase]);
+  const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setAudioFile(file);
+      if (audioPreview && audioPreview.startsWith("blob:")) {
+        URL.revokeObjectURL(audioPreview);
+      }
+      setAudioPreview(URL.createObjectURL(file));
+    }
+  };
 
-  useEffect(() => {
-    fetchAllSettings();
-  }, [fetchAllSettings]);
+  const handleDrop = (
+    e: React.DragEvent<HTMLDivElement>,
+    fileType: "image" | "audio"
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const files = Array.from(e.dataTransfer.files);
+    if (fileType === "image") {
+      const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+      setImageFiles((prev) => [...prev, ...imageFiles]);
+      const newPreviews = imageFiles.map((file) => URL.createObjectURL(file));
+      setImagePreviews((prev) => [...prev, ...newPreviews]);
+    } else {
+      const audioFiles = files.filter((file) => file.type.startsWith("audio/"));
+      if (audioFiles[0]) {
+        setAudioFile(audioFiles[0]);
+        if (audioPreview && audioPreview.startsWith("blob:")) {
+          URL.revokeObjectURL(audioPreview);
+        }
+        setAudioPreview(URL.createObjectURL(audioFiles[0]));
+      }
+    }
+  };
 
-  const saveSettings = async (newSettings: Partial<Settings>) => {
-    const updatedSettings = { ...settings, ...newSettings };
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleUploadImages = async () => {
+    if (imageFiles.length === 0) return;
+
+    setIsUploadingImages(true);
+    toast({ title: "Uploading images...", description: "Please wait." });
 
     try {
-      const { error } = await supabase
-        .from("store_settings")
-        .upsert(
-          { key: SETTINGS_KEY, value: updatedSettings },
-          { onConflict: "key" }
-        );
+      const newImageUploadPromises = imageFiles.map(uploadAsset);
+      const uploadedImageUrls = (
+        await Promise.all(newImageUploadPromises)
+      ).filter((url): url is string => url !== null);
 
-      if (error) throw error;
+      const existingHttpUrls = imagePreviews.filter((p) =>
+        p.startsWith("http")
+      );
+      setImagePreviews([...existingHttpUrls, ...uploadedImageUrls]);
+      setImageFiles([]);
 
-      // This is the crucial part: update the provider's state after a successful save.
-      setSettingsState(updatedSettings);
-    } catch (error: any) {
-      console.error("Failed to save settings:", error);
-      throw new Error(error.message);
+      toast({
+        title: "Images uploaded!",
+        description: "Image URLs have been updated.",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Image Upload Failed",
+        description: (error as Error).message,
+      });
+    } finally {
+      setIsUploadingImages(false);
     }
   };
 
-  const value = {
-    ...settings,
-    isLoading,
-    saveSettings,
+  const handleUploadAudio = async () => {
+    if (!audioFile) return;
+
+    setIsUploadingAudio(true);
+    toast({ title: "Uploading audio...", description: "Please wait." });
+
+    try {
+      const uploadedAudioUrl = await uploadAsset(audioFile);
+      if (uploadedAudioUrl) {
+        setAudioPreview(uploadedAudioUrl);
+        setAudioFile(null);
+        toast({
+          title: "Audio uploaded!",
+          description: "Audio URL has been updated.",
+        });
+      } else {
+        throw new Error("Received a null URL from the asset uploader.");
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Audio Upload Failed",
+        description: (error as Error).message,
+      });
+    } finally {
+      setIsUploadingAudio(false);
+    }
   };
 
+  const handleAddSpec = () => {
+    setSpecifications([...specifications, { key: "", value: "" }]);
+  };
+
+  const handleRemoveSpec = (index: number) => {
+    const newSpecs = specifications.filter((_, i) => i !== index);
+    setSpecifications(newSpecs);
+  };
+
+  const handleSpecChange = (
+    index: number,
+    field: "key" | "value",
+    value: string
+  ) => {
+    const newSpecs = [...specifications];
+    newSpecs[index][field] = value;
+    setSpecifications(newSpecs);
+  };
+
+  const handleCategoryChange = (
+    checked: boolean | string,
+    categoryId: string
+  ) => {
+    setSelectedCategoryIds((prev) =>
+      checked ? [...prev, categoryId] : prev.filter((c) => c !== categoryId)
+    );
+  };
+
+  const handleTagChange = (checked: boolean | string, tagId: string) => {
+    setSelectedTagIds((prev) =>
+      checked ? [...prev, tagId] : prev.filter((t) => t !== tagId)
+    );
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (imageFiles.length > 0 || audioFile) {
+      toast({
+        variant: "destructive",
+        title: "Unsaved Media",
+        description:
+          "You have unsaved media files. Please upload them before saving the product.",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    toast({
+      title: "Saving product...",
+      description: "Please wait while we save the data.",
+    });
+
+    try {
+      const newSpecifications = specifications.reduce((acc, spec) => {
+        if (spec.key && spec.value) {
+          acc[spec.key] = spec.value;
+        }
+        return acc;
+      }, {} as { [key: string]: string });
+
+      const productData = {
+        product_name: name,
+        description: description,
+        price: price,
+        product_type: productType,
+        specifications: newSpecifications,
+        image_urls: imagePreviews,
+        audio_url: audioPreview || null,
+        mrp: mrp && mrp > 0 ? mrp : null,
+      };
+
+      const stockData = {
+        stock_quantity: stockQuantity,
+        stock_status: stockStatus,
+      };
+
+      if (product?.productId) {
+        // Update existing product
+        await updateProductAction(product.productId, productData, stockData);
+
+        // Update category and tag associations separately
+        const { error: catDeleteError } = await supabase
+          .from("product_categories")
+          .delete()
+          .eq("product_id", product.productId);
+        if (catDeleteError) throw catDeleteError;
+        if (selectedCategoryIds.length > 0) {
+          const catLinks = selectedCategoryIds.map((catId) => ({
+            product_id: product.productId,
+            category_id: catId,
+          }));
+          const { error: catInsertError } = await supabase
+            .from("product_categories")
+            .insert(catLinks);
+          if (catInsertError) throw catInsertError;
+        }
+
+        const { error: tagDeleteError } = await supabase
+          .from("product_tags")
+          .delete()
+          .eq("product_id", product.productId);
+        if (tagDeleteError) throw tagDeleteError;
+        if (selectedTagIds.length > 0) {
+          const tagLinks = selectedTagIds.map((tagId) => ({
+            product_id: product.productId,
+            tag_id: tagId,
+          }));
+          const { error: tagInsertError } = await supabase
+            .from("product_tags")
+            .insert(tagLinks);
+          if (tagInsertError) throw tagInsertError;
+        }
+      } else {
+        // Create new product and its stock via a single server action
+        const savedProduct = await createProductAction(productData, stockData);
+        if (savedProduct && savedProduct.product_id) {
+          // Link categories and tags
+          if (selectedCategoryIds.length > 0) {
+            const catLinks = selectedCategoryIds.map((catId) => ({
+              product_id: savedProduct.product_id,
+              category_id: catId,
+            }));
+            await supabase.from("product_categories").insert(catLinks);
+          }
+          if (selectedTagIds.length > 0) {
+            const tagLinks = selectedTagIds.map((tagId) => ({
+              product_id: savedProduct.product_id,
+              tag_id: tagId,
+            }));
+            await supabase.from("product_tags").insert(tagLinks);
+          }
+        } else {
+          throw new Error("Failed to create product.");
+        }
+      }
+
+      toast({
+        title: product ? `Product Updated` : `Product Created`,
+        description: `"${name}" has been successfully saved.`,
+      });
+
+      router.push("/admin/products");
+      router.refresh();
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: (error as Error).message,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const isUploading = isUploadingImages || isUploadingAudio;
+
   return (
-    <SettingsContext.Provider value={value}>
-      {children}
-    </SettingsContext.Provider>
+    <form onSubmit={handleSubmit} className="grid gap-8">
+      <div className="grid gap-4 md:grid-cols-[1fr_350px]">
+        <div className="grid auto-rows-max gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Product Details</CardTitle>
+              <CardDescription>
+                Basic information about the product.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. C Natural Medium Flute"
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={description ?? ""}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="A short, descriptive summary of the product."
+                  disabled={isSubmitting}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Stock</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-2">
+                <Label htmlFor="stockQuantity">Quantity</Label>
+                <Input
+                  id="stockQuantity"
+                  type="number"
+                  value={stockQuantity}
+                  onChange={(e) => setStockQuantity(Number(e.target.value))}
+                  placeholder="0"
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="stockStatus">Status</Label>
+                <Select
+                  value={stockStatus}
+                  onValueChange={(value) =>
+                    setStockStatus(value as Product["stockStatus"])
+                  }
+                  disabled={isSubmitting}
+                >
+                  <SelectTrigger id="stockStatus">
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="in-stock">In Stock</SelectItem>
+                    <SelectItem value="out-of-stock">Out of Stock</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Pricing</CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-2">
+                <Label htmlFor="price">Price (INR)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  value={price}
+                  onChange={(e) => setPrice(Number(e.target.value))}
+                  placeholder="2500"
+                  disabled={isSubmitting}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="mrp">MRP (Optional)</Label>
+                <Input
+                  id="mrp"
+                  type="number"
+                  value={mrp || ""}
+                  onChange={(e) => setMrp(Number(e.target.value))}
+                  placeholder="3000"
+                  disabled={isSubmitting}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Specifications</CardTitle>
+              <CardDescription>
+                Add technical details for the product.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              {specifications.map((spec, index) => (
+                <div key={index} className="flex items-end gap-2">
+                  <div className="grid gap-2 flex-grow">
+                    <Label htmlFor={`spec-key-${index}`}>Attribute</Label>
+                    <Input
+                      id={`spec-key-${index}`}
+                      value={spec.key}
+                      onChange={(e) =>
+                        handleSpecChange(index, "key", e.target.value)
+                      }
+                      placeholder="e.g. Type, Tonic, Material"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  <div className="grid gap-2 flex-grow">
+                    <Label htmlFor={`spec-value-${index}`}>Value</Label>
+                    <Input
+                      id={`spec-value-${index}`}
+                      value={spec.value}
+                      onChange={(e) =>
+                        handleSpecChange(index, "value", e.target.value)
+                      }
+                      placeholder="e.g. A440Hz"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleRemoveSpec(index)}
+                    className="shrink-0"
+                    disabled={isSubmitting}
+                  >
+                    <X className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAddSpec}
+                className="mt-2"
+                disabled={isSubmitting}
+              >
+                Add Specification
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+        <div className="grid auto-rows-max items-start gap-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Organize</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="productType">Product Type</Label>
+                  <Select
+                    value={productType}
+                    onValueChange={(value) => setProductType(value)}
+                    disabled={isSubmitting}
+                  >
+                    <SelectTrigger id="productType">
+                      <SelectValue placeholder="Select type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {pdpSettings.productTypes.map((type: ProductType) => (
+                        <SelectItem key={type.id} value={type.id}>
+                          {type.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Accordion type="multiple" className="w-full">
+                  <AccordionItem value="categories">
+                    <AccordionTrigger className="text-sm font-medium">
+                      Categories
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="grid gap-2 max-h-48 overflow-y-auto p-1">
+                        {allCategories.map((cat) => (
+                          <div
+                            key={cat.id}
+                            className="flex items-center space-x-2"
+                          >
+                            <Checkbox
+                              id={`cat-${cat.id}`}
+                              checked={selectedCategoryIds.includes(cat.id)}
+                              onCheckedChange={(checked) =>
+                                handleCategoryChange(checked, cat.id)
+                              }
+                            />
+                            <Label
+                              htmlFor={`cat-${cat.id}`}
+                              className="font-normal text-sm"
+                            >
+                              {cat.name}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                  <AccordionItem value="tags">
+                    <AccordionTrigger className="text-sm font-medium">
+                      Tags
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="grid gap-2 max-h-48 overflow-y-auto p-1">
+                        {allTags.map((tag) => (
+                          <div
+                            key={tag.id}
+                            className="flex items-center space-x-2"
+                          >
+                            <Checkbox
+                              id={`tag-${tag.id}`}
+                              checked={selectedTagIds.includes(tag.id)}
+                              onCheckedChange={(checked) =>
+                                handleTagChange(checked, tag.id)
+                              }
+                            />
+                            <Label
+                              htmlFor={`tag-${tag.id}`}
+                              className="font-normal text-sm"
+                            >
+                              {tag.name}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Product Media</CardTitle>
+              <CardDescription>
+                Upload images and an audio sample for the product.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Product Images</Label>
+                <div
+                  onDrop={(e) => handleDrop(e, "image")}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  className={cn(
+                    "mt-2 flex flex-col items-center justify-center rounded-md border-2 border-dashed p-8 text-center",
+                    isDragging && "border-primary"
+                  )}
+                >
+                  <label
+                    htmlFor="image-upload"
+                    className="cursor-pointer w-full"
+                  >
+                    <Upload className="h-8 w-8 text-muted-foreground mb-2 mx-auto" />
+                    <p className="text-sm text-muted-foreground">
+                      Drag & drop images here, or click to browse
+                    </p>
+                  </label>
+                  <Input
+                    id="image-upload"
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="sr-only"
+                    disabled={isUploading}
+                  />
+                </div>
+                {imagePreviews.length > 0 && (
+                  <div className="mt-4 grid grid-cols-3 gap-2">
+                    {imagePreviews.map((preview, index) => (
+                      <div key={`${preview}-${index}`} className="relative">
+                        <Image
+                          src={preview}
+                          alt={`Preview ${index}`}
+                          width={100}
+                          height={100}
+                          className="rounded-md object-cover w-full aspect-square"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full"
+                          onClick={() => handleRemoveImage(index, preview)}
+                          disabled={isUploading || isSubmitting}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {imageFiles.length > 0 && (
+                  <Button
+                    type="button"
+                    className="w-full mt-4"
+                    onClick={handleUploadImages}
+                    disabled={isUploadingImages}
+                  >
+                    {isUploadingImages
+                      ? "Uploading..."
+                      : `Upload ${imageFiles.length} Image(s)`}
+                  </Button>
+                )}
+              </div>
+              <div className="border-t pt-4">
+                <Label>Audio Sample</Label>
+                <div
+                  onDrop={(e) => handleDrop(e, "audio")}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  className={cn(
+                    "mt-2 flex flex-col items-center justify-center rounded-md border-2 border-dashed p-8 text-center",
+                    isDragging && "border-primary"
+                  )}
+                >
+                  <label
+                    htmlFor="audio-upload"
+                    className="cursor-pointer w-full"
+                  >
+                    <Music className="h-8 w-8 text-muted-foreground mb-2 mx-auto" />
+                    <p className="text-sm text-muted-foreground">
+                      Drag & drop audio file here, or click to browse
+                    </p>
+                  </label>
+                  <Input
+                    id="audio-upload"
+                    type="file"
+                    accept="audio/*"
+                    onChange={handleAudioChange}
+                    className="sr-only"
+                    disabled={isUploading}
+                  />
+                </div>
+                {audioPreview && (
+                  <div className="mt-2">
+                    <audio controls src={audioPreview} className="w-full" />
+                    <Button
+                      type="button"
+                      variant="link"
+                      size="sm"
+                      className="text-destructive"
+                      onClick={() => {
+                        setAudioFile(null);
+                        setAudioPreview(null);
+                      }}
+                      disabled={isUploading}
+                    >
+                      Remove audio
+                    </Button>
+                  </div>
+                )}
+                {audioFile && (
+                  <Button
+                    type="button"
+                    className="w-full mt-4"
+                    onClick={handleUploadAudio}
+                    disabled={isUploadingAudio}
+                  >
+                    {isUploadingAudio ? "Uploading..." : "Upload Audio"}
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      <div className="flex justify-end gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => router.back()}
+          disabled={isSubmitting}
+        >
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting || isUploading}>
+          {isSubmitting
+            ? "Saving..."
+            : product
+            ? "Update Product"
+            : "Save Product"}
+        </Button>
+      </div>
+    </form>
   );
 }

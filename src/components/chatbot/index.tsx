@@ -20,6 +20,7 @@ import {
   ShoppingBag,
   Truck,
   UserRound,
+  ChevronLeft,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -70,6 +71,14 @@ export function Chatbot({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { storeDetails } = useSettings();
   const isFirstRender = useRef(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -139,23 +148,40 @@ export function Chatbot({
   return (
     <>
       <AnimatePresence>
-        {!isOpen && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed bottom-6 right-6 z-50"
-          >
-            <Button
-              className="rounded-full shadow-lg h-14 w-14"
-              onClick={() => setIsOpen(true)}
-              size="icon"
+        {!isOpen &&
+          (isMobile ? (
+            <motion.div
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ duration: 0.3 }}
+              className="fixed top-1/2 -translate-y-1/2 right-0 z-50"
             >
-              <MessageSquare className="h-6 w-6" />
-            </Button>
-          </motion.div>
-        )}
+              <Button
+                className="rounded-r-none rounded-l-2xl shadow-lg h-14 w-10 flex items-center justify-center pl-1"
+                onClick={() => setIsOpen(true)}
+                size="icon"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </Button>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ scale: 0, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="fixed bottom-6 right-6 z-50"
+            >
+              <Button
+                className="rounded-full shadow-lg h-14 w-14"
+                onClick={() => setIsOpen(true)}
+                size="icon"
+              >
+                <MessageSquare className="h-6 w-6" />
+              </Button>
+            </motion.div>
+          ))}
       </AnimatePresence>
 
       <AnimatePresence>

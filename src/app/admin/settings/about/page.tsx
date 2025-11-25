@@ -88,14 +88,25 @@ export default function AboutSettingsPage() {
         const updatedContacts = [...localAboutContent.contactInfo];
         const contact = { ...updatedContacts[index], [field]: value };
 
-        if (field === 'value') {
-            if (contact.type === 'email') contact.href = `mailto:${value}`;
-            else if (contact.type === 'phone') contact.href = `tel:${value}`;
-            else if (contact.type === 'whatsapp') contact.href = `https://wa.me/${value.replace(/\D/g, '')}`;
+        if (field === 'value' && !contact.href) { // Auto-populate href if not manually set
+            if (contact.type.toLowerCase() === 'email') contact.href = `mailto:${value}`;
+            else if (contact.type.toLowerCase() === 'phone') contact.href = `tel:${value}`;
+            else if (contact.type.toLowerCase() === 'whatsapp') contact.href = `https://wa.me/${value.replace(/\D/g, '')}`;
         }
 
         updatedContacts[index] = contact;
         handleAboutContentChange('contactInfo', updatedContacts);
+    };
+
+    const handleContactIconUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                handleContactInfoChange(index, 'iconUrl', reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
     };
 
     const handleAddContactInfo = () => {
@@ -213,20 +224,23 @@ export default function AboutSettingsPage() {
                                     <CardContent className="p-4 grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label>Type</Label>
-                                            <Select value={contact.type} onValueChange={(v) => handleContactInfoChange(index, 'type', v)}>
-                                                <SelectTrigger><SelectValue/></SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="email">Email</SelectItem>
-                                                    <SelectItem value="phone">Phone</SelectItem>
-                                                    <SelectItem value="whatsapp">WhatsApp</SelectItem>
-                                                    <SelectItem value="address">Address</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                                            <Input value={contact.type} onChange={(e) => handleContactInfoChange(index, 'type', e.target.value)} placeholder="e.g. Email, Phone"/>
                                         </div>
                                         <div className="space-y-2"><Label>Title</Label><Input value={contact.title} onChange={e => handleContactInfoChange(index, 'title', e.target.value)} /></div>
                                         <div className="space-y-2"><Label>Value / Main Line</Label><Input value={contact.value} onChange={e => handleContactInfoChange(index, 'value', e.target.value)} /></div>
                                         <div className="space-y-2"><Label>Description / Sub-line</Label><Input value={contact.description} onChange={e => handleContactInfoChange(index, 'description', e.target.value)} /></div>
                                         <div className="col-span-2 space-y-2"><Label>Link (href)</Label><Input value={contact.href || ''} onChange={e => handleContactInfoChange(index, 'href', e.target.value)} placeholder="e.g., mailto:..." /></div>
+                                        <div className="col-span-2 space-y-2">
+                                            <Label>Custom Icon (Optional)</Label>
+                                            <Input
+                                                id={`contact-icon-upload-${contact.id}`}
+                                                type="file"
+                                                accept="image/*,.svg"
+                                                className="text-xs"
+                                                onChange={(e) => handleContactIconUpload(index, e)}
+                                            />
+                                            {contact.iconUrl && <Image src={contact.iconUrl} alt="Icon Preview" width={32} height={32} className="mt-2" />}
+                                        </div>
                                     </CardContent>
                                     <CardFooter><Button size="sm" variant="destructive" onClick={() => handleRemoveContactInfo(index)}>Remove Contact</Button></CardFooter>
                                 </Card>

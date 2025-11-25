@@ -6,7 +6,6 @@ export interface Product {
   mrp?: number | null;
   imageUrls: string[];
   audioUrl?: string | null;
-  shippingCostOverride?: number | null;
   avgRating: number;
   reviewCount: number;
   stockStatus: "in-stock" | "out-of-stock" | "archived";
@@ -209,11 +208,12 @@ export interface TeamMember {
 
 export interface ContactInfo {
   id: number;
-  type: "email" | "phone" | "whatsapp" | "address";
+  type: string;
   title: string;
   description: string;
   value: string;
   href?: string;
+  iconUrl?: string;
 }
 
 export interface AboutPageContent {
@@ -232,8 +232,9 @@ export interface FAQItem {
 
 export interface SocialLink {
   id: number;
-  platform: "facebook" | "twitter" | "instagram" | "youtube" | "linkedin";
+  platform: string;
   href: string;
+  iconUrl?: string;
 }
 
 export interface StringColor {

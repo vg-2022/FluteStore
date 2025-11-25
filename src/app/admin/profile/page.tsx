@@ -10,8 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { AnimateOnScroll } from "@/components/animate-on-scroll";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -27,8 +25,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { createClient } from "@/lib/supabase/client";
-import { useAccount } from "./_components/account-provider";
 import { LogOut } from "lucide-react";
+import type { User } from "@supabase/supabase-js";
 
 const profileSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -37,12 +35,12 @@ const profileSchema = z.object({
   phone: z.string().min(10, "Must be a valid mobile number").optional(),
 });
 
-export default function AccountProfilePage() {
+export default function AdminProfilePage() {
   const supabase = createClient();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [isSigningOutOthers, setIsSigningOutOthers] = useState(false);
-  const { user } = useAccount();
+  const [user, setUser] = useState<User | null>(null);
 
   const form = useForm<z.infer<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -55,15 +53,18 @@ export default function AccountProfilePage() {
   });
 
   useEffect(() => {
-    if (user) {
-      form.reset({
-        email: user.email || "",
-        first_name: user.user_metadata?.first_name || "",
-        last_name: user.user_metadata?.last_name || "",
-        phone: user.user_metadata?.phone || user.phone || "",
-      });
-    }
-  }, [user, form]);
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      if (user) {
+        form.reset({
+          email: user.email || "",
+          first_name: user.user_metadata?.first_name || "",
+          last_name: user.user_metadata?.last_name || "",
+          phone: user.user_metadata?.phone || user.phone || "",
+        });
+      }
+    });
+  }, [supabase, form]);
 
   const handleProfileUpdate = async (values: z.infer<typeof profileSchema>) => {
     if (!user) return;
@@ -113,11 +114,11 @@ export default function AccountProfilePage() {
   };
 
   if (!user) {
-    return null;
+    return <p>Loading profile...</p>;
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-2xl mx-auto">
       <AnimateOnScroll>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleProfileUpdate)}>
@@ -197,62 +198,6 @@ export default function AccountProfilePage() {
       </AnimateOnScroll>
 
       <AnimateOnScroll delay={100}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Communication Preferences</CardTitle>
-            <CardDescription>
-              Manage your newsletter and notification settings.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Checkbox id="newsletter" defaultChecked />
-              <Label htmlFor="newsletter" className="font-normal">
-                Subscribe to our newsletter for new arrivals and special offers.
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox id="order-updates" defaultChecked />
-              <Label htmlFor="order-updates" className="font-normal">
-                Receive email notifications for order status updates.
-              </Label>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button>Update Preferences</Button>
-          </CardFooter>
-        </Card>
-      </AnimateOnScroll>
-
-      <AnimateOnScroll delay={200}>
-        <Card>
-          <CardHeader>
-            <CardTitle>Change Password</CardTitle>
-            <CardDescription>
-              For your security, we recommend using a strong password.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="current-password">Current Password</Label>
-              <Input id="current-password" type="password" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-password">New Password</Label>
-              <Input id="new-password" type="password" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm New Password</Label>
-              <Input id="confirm-password" type="password" />
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Button>Change Password</Button>
-          </CardFooter>
-        </Card>
-      </AnimateOnScroll>
-
-      <AnimateOnScroll delay={300}>
         <Card>
           <CardHeader>
             <CardTitle>Security</CardTitle>

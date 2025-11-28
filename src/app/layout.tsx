@@ -11,7 +11,7 @@ import Script from "next/script";
 import { SettingsProvider } from "./admin/settings/_components/settings-provider";
 
 export const metadata: Metadata = {
-  title: "FluteStore Online",
+  title: "FluteStore - Your Premier Destination for Flutes",
   description: "The finest collection of flutes from around the world.",
 };
 
@@ -23,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

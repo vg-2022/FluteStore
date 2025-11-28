@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/form";
 import { createClient } from "@/lib/supabase/client";
 import { useAccount } from "./_components/account-provider";
-import { LogOut } from "lucide-react";
+import { LogOut, Eye, EyeOff } from "lucide-react";
 
 const profileSchema = z.object({
   first_name: z.string().min(1, "First name is required"),
@@ -36,6 +36,30 @@ const profileSchema = z.object({
   email: z.string().email("Please enter a valid email address."),
   phone: z.string().min(10, "Must be a valid mobile number").optional(),
 });
+
+function PasswordInputWithToggle({ id, label }: { id: string; label: string }) {
+  const [showPassword, setShowPassword] = useState(false);
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <div className="relative">
+        <Input id={id} type={showPassword ? "text" : "password"} />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="absolute inset-y-0 right-0 h-full px-3"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          {showPassword ? <EyeOff /> : <Eye />}
+          <span className="sr-only">
+            {showPassword ? "Hide password" : "Show password"}
+          </span>
+        </Button>
+      </div>
+    </div>
+  );
+}
 
 export default function AccountProfilePage() {
   const supabase = createClient();
@@ -233,18 +257,15 @@ export default function AccountProfilePage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="current-password">Current Password</Label>
-              <Input id="current-password" type="password" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="new-password">New Password</Label>
-              <Input id="new-password" type="password" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirm New Password</Label>
-              <Input id="confirm-password" type="password" />
-            </div>
+            <PasswordInputWithToggle
+              id="current-password"
+              label="Current Password"
+            />
+            <PasswordInputWithToggle id="new-password" label="New Password" />
+            <PasswordInputWithToggle
+              id="confirm-password"
+              label="Confirm New Password"
+            />
           </CardContent>
           <CardFooter>
             <Button>Change Password</Button>
